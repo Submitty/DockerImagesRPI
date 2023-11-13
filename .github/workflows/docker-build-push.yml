@@ -18,7 +18,7 @@ jobs:
       - name: Set Matrix
         id: set-matrix
         run: |
-          echo "matrix=$(python3 bin/generate_matrix.py ${{ secrets.DOCKER_USERNAME_SUBMITTY }} false ${{ github.event.before }} ${{ github.event.after }})" >> $GITHUB_OUTPUT
+          echo "matrix=$(python3 bin/generate_matrix.py submittyrpi false ${{ github.event.before }} ${{ github.event.after }})" >> $GITHUB_OUTPUT
       - name: List Matrix
         run: |
           echo ${{ steps.set-matrix.outputs.matrix }}
