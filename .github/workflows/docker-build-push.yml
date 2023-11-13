@@ -1,47 +1,47 @@
-name: Docker Build and Push
+# name: Docker Build and Push
 
 # on:
-  # push: temporarily disable
-  #   branches:
-  #     - "main"
+#   push:
+#     branches:
+#       - "main"
 
-jobs:
-  generate-matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
-      - name: Set Matrix
-        id: set-matrix
-        run: |
-          echo "matrix=$(python3 bin/generate_matrix.py ${{ secrets.DOCKER_USERNAME_SUBMITTY }} false ${{ github.event.before }} ${{ github.event.after }})" >> $GITHUB_OUTPUT
-      - name: List Matrix
-        run: |
-          echo ${{ steps.set-matrix.outputs.matrix }}
-  docker:
-    needs:
-      - generate-matrix
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
-      - name: Docker Hub login
-        uses: docker/login-action@releases/v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME_SUBMITTYRPI }}
-          password: ${{ secrets.DOCKER_PASSWORD_SUBMITTYRPI }}
-      - name: Build and push docker
-        uses: docker/build-push-action@v4
-        with:
-          context: ${{ matrix.context }}
-          push: true
-          tags: ${{ matrix.tags }}
-          platforms: linux/amd64,linux/arm64
+# jobs:
+#   generate-matrix:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       matrix: ${{ steps.set-matrix.outputs.matrix }}
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+#         with:
+#           fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+#       - name: Set Matrix
+#         id: set-matrix
+#         run: |
+#           echo "matrix=$(python3 bin/generate_matrix.py ${{ secrets.DOCKER_USERNAME_SUBMITTY }} false ${{ github.event.before }} ${{ github.event.after }})" >> $GITHUB_OUTPUT
+#       - name: List Matrix
+#         run: |
+#           echo ${{ steps.set-matrix.outputs.matrix }}
+#   docker:
+#     needs:
+#       - generate-matrix
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: true
+#       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+#     steps:
+#       - name: Check out repo
+#         uses: actions/checkout@v3
+#       - name: Docker Hub login
+#         uses: docker/login-action@releases/v1
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME_SUBMITTYRPI }}
+#           password: ${{ secrets.DOCKER_PASSWORD_SUBMITTYRPI }}
+#       - name: Build and push docker
+#         uses: docker/build-push-action@v4
+#         with:
+#           context: ${{ matrix.context }}
+#           push: true
+#           tags: ${{ matrix.tags }}
+#           platforms: linux/amd64,linux/arm64
 
