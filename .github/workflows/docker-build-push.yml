@@ -25,7 +25,7 @@ jobs:
           echo ${{ steps.set-matrix.outputs.matrix }}
       - name: Set Run Condition
         run: |
-          num_to_build=$(echo ${{ steps.set-matrix.outputs.matrix }} | jq '.include | length')
+          num_to_build=$(echo "${{ steps.set-matrix.outputs.matrix }}" | jq '.include | length')
           if [[ "$num_to_build" -eq 0 ]]; then
             echo "run_docker_jobs=false" >> $GITHUB_OUTPUT
           else
