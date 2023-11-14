@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      run_docker_jobs: ${{ steps.set-run-docker-jobs.outputs.run_docker_jobs }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,9 +23,18 @@ jobs:
       - name: List Matrix
         run: |
           echo ${{ steps.set-matrix.outputs.matrix }}
+      - name: Set Run Condition
+        run: |
+          num_to_build=$(echo ${{ steps.set-matrix.outputs.matrix }} | jq '.include | length')
+          if [[ "$num_to_build" -eq 0 ]]; then
+            echo "run_docker_jobs=false" >> $GITHUB_OUTPUT
+          else
+            echo "run_docker_jobs=true" >> $GITHUB_OUTPUT
+          fi
   docker:
     needs:
       - generate-matrix
+    if: needs.generate-matrix.outputs.run_docker_jobs == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
