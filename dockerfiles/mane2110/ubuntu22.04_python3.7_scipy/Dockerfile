@@ -1,4 +1,4 @@
-FROM submitty/python
+FROM submitty/python:3.7
 
 RUN pip3 install scipy
 
