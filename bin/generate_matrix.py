@@ -25,8 +25,11 @@ if build_all == "false":
     hash_after = sys.argv[4]
 
     # Get list of all changed files between 2 commits
-    output = subprocess.check_output(["git", "--no-pager", "diff", "--name-only", hash_before, hash_after])
+    output = subprocess.check_output(["git", "--no-pager", "diff", "--name-only", "--diff-filter=d", hash_before, hash_after])
     paths_updated = output.decode("utf-8").splitlines()
+
+    image_set = set()
+    image_tag_set = set()
 
     for path in paths_updated:
         parts = Path(path).parts
@@ -34,12 +37,21 @@ if build_all == "false":
         if parts[0] != "dockerfiles":
             continue
 
+        if len(parts) < 3:
+            continue
+
+        if not os.path.isdir(Path(parts[0], parts[1], parts[2])):
+            continue
+
+        if f"{parts[1]}:{parts[2]}" in image_tag_set:
+            continue
+
         metadata = json.loads(open(Path(parts[0]) / parts[1] / "metadata.json").read())
 
         push_latest = False
 
         if metadata["pushLatest"]:
-            if metadata["latestImage"] == parts[2]:
+            if metadata["latestTag"] == parts[2]:
                 push_latest = True
 
         tags = f"{username}/{parts[1]}:{parts[2]}"
@@ -51,6 +63,32 @@ if build_all == "false":
                 "context": str(os.path.dirname(path))
             }
         )
+        image_set.add(parts[1])
+        image_tag_set.add(f"{parts[1]}:{parts[2]}")
+    
+    # search for any metadata.json edits
+    for path in paths_updated:
+        parts = Path(path).parts
+        if parts[0] != "dockerfiles":
+            continue
+        if len(parts) < 3:
+            continue
+        if parts[2] != "metadata.json":
+            continue
+        metadata = json.loads(open(Path(parts[0]) / parts[1] / "metadata.json").read())
+        if not metadata["pushLatest"]:
+            continue # there is no latest so nothing to rebuild
+        tag = metadata["latestTag"]
+        if parts[1] in image_set:
+            continue # already being rebuilt
+        tags = f"{username}/{parts[1]}:{tag},{username}/{parts[1]}:latest"
+        to_build.append(
+            {
+                "tags": tags,
+                "context": str(Path(parts[0]) / parts[1] / tag)
+            }
+        )
+        
 elif build_all == "true":
     images = os.listdir("dockerfiles")
     for image in images:
@@ -68,7 +106,7 @@ elif build_all == "true":
             
             push_latest = False
             if metadata["pushLatest"]:
-                if metadata["latestImage"] == tag:
+                if metadata["latestTag"] == tag:
                     push_latest = True
 
             tags = f"{username}/{image}:{tag}"
@@ -80,7 +118,6 @@ elif build_all == "true":
                     "context": str(newpath)
                 }
             )
-
 
 finobj = {"include": to_build}
 
