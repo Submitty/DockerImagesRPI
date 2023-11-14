@@ -24,6 +24,7 @@ jobs:
         run: |
           echo ${{ steps.set-matrix.outputs.matrix }}
       - name: Set Run Condition
+        id: set-run-docker-jobs
         run: |
           num_to_build=$(echo '${{ steps.set-matrix.outputs.matrix }}' | jq '.include | length')
           if [[ "$num_to_build" -eq 0 ]]; then
