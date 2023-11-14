@@ -3,7 +3,7 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      - "notmain" # intentionally not main so it doesn't run yet
+      - "main"
 
 jobs:
   generate-matrix:
