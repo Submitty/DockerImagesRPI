@@ -4,10 +4,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-if len(sys.argv) > 5:
+if len(sys.argv) > 4:
     print("Too many arguments!", file=sys.stderr)
     exit(1)
-elif len(sys.argv) < 3:
+elif len(sys.argv) < 2:
     print("Not enough arguments!", file=sys.argv)
     exit(1)
 
@@ -16,18 +16,19 @@ if not os.path.isdir("dockerfiles"):
     exit(1)
 
 username = sys.argv[1]
-build_all = sys.argv[2]
 
 to_build = []
 
-if build_all == "false":
-    hash_before = sys.argv[3]
-    hash_after = sys.argv[4]
+hash_before = sys.argv[2]
+hash_after = sys.argv[3]
 
-    # Get list of all changed files between 2 commits
-    output = subprocess.check_output(["git", "--no-pager", "diff", "--name-only", "--diff-filter=d", hash_before, hash_after])
-    paths_updated = output.decode("utf-8").splitlines()
+# Get list of all changed files between 2 commits
+output = subprocess.check_output(["git", "--no-pager", "diff", "--name-only", "--diff-filter=d", hash_before, hash_after])
+paths_updated = output.decode("utf-8").splitlines()
 
+build_all = "UPDATE_ALL" in paths_updated
+
+if not build_all:
     image_set = set()
     image_tag_set = set()
 
@@ -89,7 +90,7 @@ if build_all == "false":
             }
         )
         
-elif build_all == "true":
+else:
     images = os.listdir("dockerfiles")
     for image in images:
         path = Path("dockerfiles") / image
