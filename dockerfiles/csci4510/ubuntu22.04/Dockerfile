@@ -164,7 +164,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        emacs \
+        # emacs \
         nano \
         vim \
     && rm -rf /var/lib/apt/lists/*
