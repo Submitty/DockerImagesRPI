@@ -24,8 +24,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		netbase \
 	&& rm -rf /var/lib/apt/lists/*
 
-ENV GPG_KEY E3FF2839C048B25C084DEBE9B26995E310250568
-ENV PYTHON_VERSION 3.8.18
+ENV GPG_KEY A821E680E5FA6305
+ENV PYTHON_VERSION 3.12.1
 
 RUN set -ex \
 	\
@@ -105,7 +105,7 @@ RUN cd /usr/local/bin \
 	&& ln -s python3-config python-config
 
 # if this is called "PIP_VERSION", pip explodes with "ValueError: invalid truth value '<VERSION>'"
-ENV PYTHON_PIP_VERSION 18.1
+ENV PYTHON_PIP_VERSION 23.3.2
 
 RUN set -ex; \
 	\
@@ -133,7 +133,9 @@ RUN set -ex; \
 			-o \
 			\( -type f -a \( -name '*.pyc' -o -name '*.pyo' \) \) \
 		\) -exec rm -rf '{}' +; \
-	rm -f get-pip.py
+	rm -f get-pip.py; \
+	pip3 install aioconsole; \
+	pip3 uninstall --yes pip setuptools
 
 # Necessary as Submitty does path expansion of commands in compiling a homework,
 # and so resolves "python" -> "/usr/bin/python"
@@ -229,11 +231,10 @@ ENV LANG C.UTF-8
 
 # # see CA_CERTIFICATES_JAVA_VERSION notes above
 # RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
-RUN pip3 install aioconsole
 
 # # Go install
 
-ENV GOLANG_VERSION 1.13.1
+ENV GOLANG_VERSION 1.21.5
 
 RUN set -eux; \
   apt-get update; \
@@ -241,13 +242,13 @@ RUN set -eux; \
 # this "case" statement is generated via "update.sh"
   dpkgArch="$(dpkg --print-architecture)"; \
   case "${dpkgArch##*-}" in \
-    amd64) goRelArch='linux-amd64'; goRelSha256='94f874037b82ea5353f4061e543681a0e79657f787437974214629af8407d124' ;; \
-    armhf) goRelArch='linux-armv6l'; goRelSha256='7c75d4002321ea4a066dfe13f6dd5168076e9a231317c5afd55e78b86f478e37' ;; \
-    arm64) goRelArch='linux-arm64'; goRelSha256='8af8787b7c2a3c0eb3f20f872577fcb6c36098bf725c59c4923921443084c807' ;; \
-    i386) goRelArch='linux-386'; goRelSha256='4bf7a961fda7ad892b8824002036de8c0f290df05df2e8f11252d1f8c77dcd8f' ;; \
-    ppc64el) goRelArch='linux-ppc64le'; goRelSha256='72422c68dbed013ee321a05dbb97d9c8d6b2c75f347de707138c2c748fc4aceb' ;; \
-    s390x) goRelArch='linux-s390x'; goRelSha256='5f0859ae1037ad7af6cdb6d16f638de908fd9de044d463eeab92b9578d4c7c75' ;; \
-    *) goRelArch='src'; goRelSha256='81f154e69544b9fa92b1475ff5f11e64270260d46e7e36c34aafc8bc96209358'; \
+    amd64) goRelArch='linux-amd64'; goRelSha256='e2bc0b3e4b64111ec117295c088bde5f00eeed1567999ff77bc859d7df70078e' ;; \
+    armhf) goRelArch='linux-armv6l'; goRelSha256='837f4bf4e22fcdf920ffeaa4abf3d02d1314e03725431065f4d44c46a01b42fe' ;; \
+    arm64) goRelArch='linux-arm64'; goRelSha256='841cced7ecda9b2014f139f5bab5ae31785f35399f236b8b3e75dff2a2978d96' ;; \
+    i386) goRelArch='linux-386'; goRelSha256='8f4dba9cf5c61757bbd7e9ebdb93b6a30a1b03f4a636a1ba0cc2f27b907ab8e1' ;; \
+    ppc64el) goRelArch='linux-ppc64le'; goRelSha256='907b8c6ec4be9b184952e5d3493be66b1746442394a8bc78556c56834cd7c38b' ;; \
+    s390x) goRelArch='linux-s390x'; goRelSha256='9c4a81b72ebe44368813cd03684e1080a818bf915d84163abae2ed325a1b2dc0' ;; \
+    *) goRelArch='src'; goRelSha256='285cbbdf4b6e6e62ed58f370f3f6d8c30825d6e56c5853c66d3c23bcdb09db19'; \
       echo >&2; echo >&2 "warning: current architecture ($dpkgArch) does not have a corresponding Go binary release; will be building from source"; echo >&2 ;; \
   esac; \
   \
