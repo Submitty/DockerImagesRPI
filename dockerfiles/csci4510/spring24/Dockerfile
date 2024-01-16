@@ -306,10 +306,8 @@ RUN set -eux; \
         ; \
     rm -rf /var/lib/apt/lists/*;
 
-COPY Cargo.toml /tmp/Cargo.toml
-
 RUN cargo new dockerdeps \
-	&& mv /tmp/Cargo.toml /dockerdeps/Cargo.toml \
+	&& echo 'serde_json = "1.0.111"' >> /dockerdeps/Cargo.toml \
 	&& cd dockerdeps \
 	&& cargo build \
 	&& cd .. && \
