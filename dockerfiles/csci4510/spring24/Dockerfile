@@ -307,9 +307,10 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*;
 
 RUN cargo new dockerdeps \
-	&& echo 'serde_json = "1.0.111"' >> /dockerdeps/Cargo.toml \
+	&& echo 'serde_json = "=1.0.111"' >> /dockerdeps/Cargo.toml \
+	&& echo 'serde = { version = "=1.0.196", features = ["derive"] }' >> /dockerdeps/Cargo.toml \
 	&& cd dockerdeps \
-	&& cargo build \
+	&& cargo fetch \
 	&& cd .. && \
 	rm -rf dockerdeps
 
