@@ -40,4 +40,8 @@ RUN apt-get update \
   && chmod -R 755 ${SUBMITTY_INSTALL_DIR}/java_tools \
   && apt-get purge -y --auto-remove curl
 
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ghc=8.8.4-3 cabal-install=3.0.0.0-3build1.1 \
+  && rm -rf /var/lib/apt/lists/*
+
 CMD ["/bin/bash"]
