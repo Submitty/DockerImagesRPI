@@ -19,3 +19,16 @@ RUN apt-get update \
     && apt-get -y --no-install-recommends install gcc g++ \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Valgrind
+RUN apt-get update \
+    && apt-get -y --no-install-recommends install valgrind \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pip
+RUN apt-get update \
+    && apt-get -y --no-install-recommends install python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install numpy
+RUN pip3 install numpy 
+
