@@ -143,7 +143,7 @@ RUN set -ex; \
         pandas \
         matplotlib \
         scipy \
-        opencv-python-headless \
+        opencv-python \
         torch \
         torchvision \
         jupyter; \
