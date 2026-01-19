@@ -2,14 +2,18 @@ FROM ubuntu:22.04
 
 ARG TARGETPLATFORM
 
+# runtime dependencies
 RUN apt-get update \
-    && apt-get -y --no-install-recommends install \
-      grep \
-      libseccomp-dev \
-      libseccomp2 \
-      procps \
-	  libgl1 \
-	  libglib2.0-0 \
+    	&& apt-get -y --no-install-recommends install \
+      	grep \
+      	libseccomp-dev \
+      	libseccomp2 \
+      	procps \
+		ca-certificates \
+		netbase \
+	  	libgl1 \
+	  	libglib2.0-0 \
+	  	libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/*
 #
 # Source: https://github.com/docker-library/python/blob/master/3.6/stretch/slim/Dockerfile
@@ -21,13 +25,6 @@ ENV PATH=/usr/local/bin:$PATH
 # http://bugs.python.org/issue19846
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG=C.UTF-8
-
-# runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		ca-certificates \
-		netbase \
-	&& rm -rf /var/lib/apt/lists/*
-
 ENV GPG_KEY=64E628F8D684696D
 ENV PYTHON_VERSION=3.11.14
 
@@ -143,10 +140,14 @@ RUN set -ex; \
         pandas \
         matplotlib \
         scipy \
-        opencv-python \
+		scikit-learn \
+        opencv-python-headless \
+        jupyter; \
+	pip3 install --no-cache-dir \
         torch \
         torchvision \
-        jupyter; \
+        --index-url https://download.pytorch.org/whl/cpu; \
+    \
 	pip3 uninstall --yes pip setuptools
 
 # Necessary as Submitty does path expansion of commands in compiling a homework,
